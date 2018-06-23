@@ -2,17 +2,19 @@
 
 <head>
     <script src="socket.io.js"></script>
+    <script src="https://cdn.bootcss.com/lodash.js/4.17.10/lodash.min.js"></script>
     <script>
         const socket = io('http://localhost:3000');
+        let globalPlayerId;
         // socket.on('disconnect', function () {
         //     console.log('Disconnected');
         // });
         // socket.on('connect', function () {
         //     console.log('Connected');
         // });
-        // socket.on('exception', function (data) {
-        //     console.log('exception', data);
-        // });
+        socket.on('exception', function (data) {
+            console.log('exception', data);
+        });
         // socket.on('createRoom', function (data) {
         //     console.log('createRoom', data);
         // });
@@ -26,16 +28,18 @@
         //     document.getElementById('myCards').innerText = JSON.stringify(data);
         // });
 
-
+        socket.on('leaveRoom', function (data) {
+            console.log('leaveRoom', data);
+        });
         socket.on('confirmFight', function (data) {
             console.log('confirmFight', data);
         });
-        socket.on('room', function (data) {
-            console.log('room', data);
-            document.getElementById('turnWho').innerText = data.turn[0];
+        socket.on('fight', function (data) {
+            console.log('fight', data);
         });
         socket.on('login', function (data) {
             console.log('login', data);
+            globalPlayerId = data.playerId
         });
         socket.on('getMany', function (data) {
             console.log('getMany', data);
@@ -61,8 +65,20 @@
         socket.on('joinRoom', function (data) {
             console.log('joinRoom', data);
         });
+        socket.on('fightStatus', function (data) {
+            console.log('fightStatus', data);
+            const isWin = data.winPlayer === globalPlayerId;
+            socket.emit('leaveRoom');
+            isWin ? alert('我赢了') : alert('我输了');
+            alert('再来一局吧')
+        });
         socket.on('useSkill', function (data) {
             console.log('useSkill', data);
+            const me = _.filter(data.players, { id: globalPlayerId })[0];
+            const player = _.reject(data.players, { id: globalPlayerId })[0];
+            document.getElementById('turnWho').innerText = data.turn[0];
+            document.getElementById('meHp').innerText = me.hp;
+            document.getElementById('playerHp').innerText = player.hp;
         });
 
         function 登入() {
@@ -119,14 +135,17 @@
         <button onclick="准备()">准备</button>
     </div>
     <div>
-        <button onclick="技能(1)">技能1</button>
-        <button onclick="技能(2)">技能2</button>
-        <button onclick="技能(3)">技能3</button>
-        <button onclick="技能(4)">技能4</button>
+        <button onclick="技能(1)">稳稳地攻击</button>
+        <button onclick="技能(2)">强有力攻击</button>
+        <button onclick="技能(3)">剑走偏锋</button>
+        <button onclick="技能(4)">斩杀</button>
     </div>
 
+    我生命
     <p id='meHp'></p>
+    敌生命
     <p id='playerHp'></p>
+    轮到谁
     <p id='turnWho'></p>
 </body>
 

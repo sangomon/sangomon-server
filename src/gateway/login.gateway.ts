@@ -29,7 +29,12 @@ export class LoginGateway {
     async onLogin(client: Socket, data) {
         const event = 'login';
         LoginGateway.PLAYERS.push(client.id);
-        return from([`玩家ID ${client.id} 已经登录成功`]).pipe(map(res => ({ event, data: res })));
+        return from([`玩家ID ${client.id} 已经登录成功`]).pipe(map(res => ({
+            event, data: {
+                message: res,
+                playerId: client.id,
+            },
+        })));
     }
 
     @SubscribeMessage('disconnect')

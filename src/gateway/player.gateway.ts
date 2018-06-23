@@ -43,7 +43,8 @@ export class PlayerGateway {
                 turn: [],
                 playerIds: [],
                 maxWaitTime: 30,
-            }
+                players: [],
+            },
         });
 
         client.to(playerClientId).emit('fetchFight', {
