@@ -1,0 +1,127 @@
+<html>
+
+<head>
+    <script src="socket.io.js"></script>
+    <script>
+        const socket = io('http://localhost:3000');
+        // socket.on('getMany', function (data) {
+        //     console.log('getMany', data);
+        // });
+        // socket.on('disconnect', function () {
+        //     console.log('Disconnected');
+        // });
+        // socket.on('connect', function () {
+        //     console.log('Connected');
+        // });
+        // socket.on('exception', function (data) {
+        //     console.log('exception', data);
+        // });
+        // socket.on('createRoom', function (data) {
+        //     console.log('createRoom', data);
+        // });
+        // socket.on('joinRoom', function (data) {
+        //     console.log('joinRoom', data);
+        // });
+        // socket.on('submitCard', function (data) {
+        //     console.log('submitCard', data);
+        // });
+        // socket.on('getMyCards', function (data) {
+        //     document.getElementById('myCards').innerText = JSON.stringify(data);
+        // });
+        // socket.on('getHistoryCards', function (data) {
+        //     document.getElementById('historyCards').innerText = JSON.stringify(data);
+        // });
+        socket.on('login', function (data) {
+            console.log('login', data);
+        });
+        socket.on('getMany', function (data) {
+            console.log('getMany', data);
+            document.getElementById('players').innerHTML = document.getElementById('players').innerText + "</br>" + JSON.stringify(data);
+        });
+        socket.on('sendFight', function (data) {
+            console.log('sendFight', data);
+            const roomId = data;
+            socket.emit('joinRoom', {
+                roomId,
+            });
+        });
+        socket.on('fetchFight', function (data) {
+            console.log('fetchFight', data);
+            const roomId = data.roomId;
+            const invitePlayerId = data.invitePlayerId;
+            if (confirm(`是否接受${invitePlayerId}的攻击`)) {
+                socket.emit('joinRoom', {
+                    roomId,
+                });
+            }
+        });
+        socket.on('joinRoom', function (data) {
+            console.log('joinRoom', data);
+        });
+        socket.on('useSkill', function (data) {
+            console.log('useSkill', data);
+        });
+
+        function 登入() {
+            socket.emit('login');
+        }
+        function 获取玩家列表() {
+            socket.emit('getMany');
+        }
+        function 与他战斗() {
+            const playerId = document.getElementById('playerId').value;
+            socket.emit('sendFight', {
+                playerId,
+            });
+        }
+
+        function 技能(skillId) {
+            socket.emit('useSkill', {
+                skillId,
+            });
+        }
+
+        // function 创建房间() {
+        //     socket.emit('createRoom');
+        // }
+
+        // function 加入房间() {
+        //     const roomId = document.getElementById('roomId').value;
+        //     socket.emit('joinRoom', { roomId });
+        // }
+
+        // function 出牌() {
+        //     const playerCardId = document.getElementById('playerCardId').value;
+        //     const roomId = document.getElementById('roomId').value;
+        //     socket.emit('submitCard', { playerCardId, roomId });
+        // }
+    </script>
+</head>
+
+<body>
+    <div>
+        <button onclick="登入()">登入</button>
+    </div>
+    <div>
+        <button onclick="获取玩家列表()">获取玩家列表</button>
+        <br />玩家列表
+        <p id='players'></p>
+    </div>
+    <div>
+        战斗玩家ID
+        <input id="playerId">
+        <button onclick="与他战斗()">与他战斗</button>
+    </div>
+    <div>
+        <button onclick="技能(1)">技能1</button>
+        <button onclick="技能(2)">技能2</button>
+        <button onclick="技能(3)">技能3</button>
+        <button onclick="技能(4)">技能4</button>
+    </div>
+
+    <p id='meHp'></p>
+    <p id='playerHp'></p>
+    <p id='turnWho'></p>
+</body>
+
+</html>
