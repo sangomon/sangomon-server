@@ -32,4 +32,23 @@ export class LoginGateway {
         return from([`玩家ID ${client.id} 已经登录成功`]).pipe(map(res => ({ event, data: res })));
     }
 
+    @SubscribeMessage('disconnect')
+    async disconnect(client: Socket, data) {
+        const event = 'disconnect';
+
+        LoginGateway.PLAYERS = _.without(LoginGateway.PLAYERS, client.id);
+        console.log(`${client.id} 断开了链接`);
+
+        return empty();
+    }
+
+    @SubscribeMessage('connect')
+    async connect(client: Socket, data) {
+        const event = 'connect';
+
+        console.log(`${client.id} 打开了链接`);
+
+        return empty();
+    }
+
 }

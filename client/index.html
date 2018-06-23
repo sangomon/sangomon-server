@@ -4,9 +4,6 @@
     <script src="socket.io.js"></script>
     <script>
         const socket = io('http://localhost:3000');
-        // socket.on('getMany', function (data) {
-        //     console.log('getMany', data);
-        // });
         // socket.on('disconnect', function () {
         //     console.log('Disconnected');
         // });
@@ -28,9 +25,15 @@
         // socket.on('getMyCards', function (data) {
         //     document.getElementById('myCards').innerText = JSON.stringify(data);
         // });
-        // socket.on('getHistoryCards', function (data) {
-        //     document.getElementById('historyCards').innerText = JSON.stringify(data);
-        // });
+
+
+        socket.on('confirmFight', function (data) {
+            console.log('confirmFight', data);
+        });
+        socket.on('room', function (data) {
+            console.log('room', data);
+            document.getElementById('turnWho').innerText = data.turn[0];
+        });
         socket.on('login', function (data) {
             console.log('login', data);
         });
@@ -74,11 +77,13 @@
                 playerId,
             });
         }
-
         function 技能(skillId) {
             socket.emit('useSkill', {
                 skillId,
             });
+        }
+        function 准备() {
+            socket.emit('confirmFight');
         }
 
         // function 创建房间() {
@@ -111,6 +116,7 @@
         战斗玩家ID
         <input id="playerId">
         <button onclick="与他战斗()">与他战斗</button>
+        <button onclick="准备()">准备</button>
     </div>
     <div>
         <button onclick="技能(1)">技能1</button>

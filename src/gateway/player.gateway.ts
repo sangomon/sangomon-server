@@ -9,8 +9,9 @@ import { Observable, from, empty } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PlayerService } from '../service/player.service';
 import { Server, Client, Socket } from 'socket.io';
-import { $ } from '../common';
+import { $, _ } from '../common';
 import { LoginGateway } from './login.gateway';
+import { FightGateway } from './fight.gateway';
 
 @WebSocketGateway()
 export class PlayerGateway {
@@ -35,6 +36,15 @@ export class PlayerGateway {
         const event = 'sendFight';
         const playerClientId = data.playerId;
         const roomId = $.getId();
+
+        // 初始化房间配置
+        _.assign(FightGateway.ROOM_CONFIGS, {
+            [roomId]: {
+                turn: [],
+                playerIds: [],
+                maxWaitTime: 30,
+            }
+        });
 
         client.to(playerClientId).emit('fetchFight', {
             message: `玩家${client.id}邀请你加入决斗`,
