@@ -95,6 +95,15 @@ export class FightGateway {
         return empty();
     }
 
+    @SubscribeMessage('useSkillStart')
+    async useSkillStart(client: Socket, data) {
+        const event = 'useSkillStart';
+        const roomId = _.keys(client.rooms)[0];
+
+        this.server.in(roomId).emit('useSkill', FightGateway.ROOM_CONFIGS[roomId]);
+        return empty();
+    }
+
     private checkIsTurnPlayer(roomId: IType.ID, playerId: IType.ID) {
         const turn = FightGateway.ROOM_CONFIGS[roomId].turn;
         if (turn[0] === playerId) return true;
@@ -105,7 +114,7 @@ export class FightGateway {
         const turn = FightGateway.ROOM_CONFIGS[roomId].turn;
 
         const first = turn.shift();
-        turn.push(first);
+        if (first) turn.push(first);
         FightGateway.ROOM_CONFIGS[roomId].turn = turn;
         return turn;
     }
@@ -146,7 +155,7 @@ export class FightGateway {
         const roomId = _.keys(client.rooms)[0];
 
         const isTurnPlayer = this.checkIsTurnPlayer(roomId, client.id);
-        if (!isTurnPlayer) return from([`还没有到出手时机`]).pipe(map(res => ({ event: 'exception', data: res })));
+        if (!isTurnPlayer) return from([`还没有到出手时机`]).pipe(map(res => ({ event: 'warn', data: res })));
 
         // 攻击
         this.attack(roomId, client.id, skillId);

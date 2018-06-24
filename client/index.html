@@ -1,10 +1,10 @@
 <html>
 
 <head>
-    <script src="socket.io.js"></script>
+    <script src="https://cdn.bootcss.com/socket.io/2.1.1/socket.io.js"></script>
     <script src="https://cdn.bootcss.com/lodash.js/4.17.10/lodash.min.js"></script>
     <script>
-        const socket = io('http://localhost:3000');
+        const socket = io('wss://localhost:3000');
         let globalPlayerId;
         // socket.on('disconnect', function () {
         //     console.log('Disconnected');
@@ -43,7 +43,10 @@
         });
         socket.on('getMany', function (data) {
             console.log('getMany', data);
-            document.getElementById('players').innerHTML = document.getElementById('players').innerText + "</br>" + JSON.stringify(data);
+            document.getElementById('players').innerHTML = '';
+            for (const item of data) {
+                document.getElementById('players').innerHTML = document.getElementById('players').innerText + "</br>" + JSON.stringify(item);
+            }
         });
         socket.on('sendFight', function (data) {
             console.log('sendFight', data);
@@ -56,8 +59,14 @@
             console.log('fetchFight', data);
             const roomId = data.roomId;
             const invitePlayerId = data.invitePlayerId;
-            if (confirm(`是否接受${invitePlayerId}的攻击`)) {
+            const message = data.message;
+
+            if (confirm(message)) {
                 socket.emit('joinRoom', {
+                    roomId,
+                });
+            } else {
+                socket.emit('rejectFight', {
                     roomId,
                 });
             }

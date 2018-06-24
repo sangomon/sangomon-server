@@ -25,10 +25,15 @@ export class PlayerGateway {
     }
 
     @SubscribeMessage('getMany')
-    async onGetMany(client: Socket, data) {
+    async onGetMany(client: Socket, data: { params?: { includeMe?: 0 | 1 } }) {
         const event = 'getMany';
-        const response = LoginGateway.PLAYERS;
-        return from(response).pipe(map(res => ({ event, data: res })));
+        const { params } = data;
+
+        let players = LoginGateway.PLAYERS;
+        if (params && params.includeMe === 0) {
+            players = _.without(players, client.id);
+        }
+        return { event, data: players };
     }
 
     @SubscribeMessage('sendFight')
@@ -53,6 +58,18 @@ export class PlayerGateway {
             roomId,
         });
         return from([roomId]).pipe(map(res => ({ event, data: res })));
+    }
+
+    @SubscribeMessage('rejectFight')
+    async rejectFight(client: Socket, data) {
+        const event = 'rejectFight';
+        const roomId = data.roomId;
+
+        client.to(roomId).emit('exception', {
+            message: `玩家${client.id}拒绝加入决斗`,
+            roomId,
+        });
+        return empty();
     }
 
 }

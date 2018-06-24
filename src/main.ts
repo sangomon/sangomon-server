@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ApplicationModule } from './app.module';
 import { MemoryCacheCommon } from './common';
 import * as util from 'util';
+import * as fs from 'fs';
 
 // 原生方法注入
 const console_log = console.log;
@@ -17,7 +18,15 @@ console.debug = function dump(...objs: any[]): void {
 };
 
 async function bootstrap() {
-    const app = await NestFactory.create(ApplicationModule);
+    const httpsOptions = {
+        key: fs.readFileSync('/root/.ssh/me.key'),
+        cert: fs.readFileSync('/root/.ssh/me.csr'),
+    };
+
+    const app = await NestFactory.create(ApplicationModule, {
+        httpsOptions,
+    });
+
     await app.listen(3000);
 }
 bootstrap();
