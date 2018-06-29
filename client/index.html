@@ -1,11 +1,13 @@
 <html>
 
 <head>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.bootcss.com/socket.io/2.1.1/socket.io.js"></script>
     <script src="https://cdn.bootcss.com/lodash.js/4.17.10/lodash.min.js"></script>
     <script>
         const socket = io('wss://localhost:3000');
         let globalPlayerId;
+        let token;
         // socket.on('disconnect', function () {
         //     console.log('Disconnected');
         // });
@@ -90,8 +92,27 @@
             document.getElementById('playerHp').innerText = player.hp;
         });
 
+        function 注册帐号() {
+            $.post("https://localhost:3000/auth/register",
+                {
+                    phone: $("#phone").val(),
+                },
+                function (data, status) {
+                    console.log(`使用 ${data.phone} 注册成功`);
+                });
+        }
+        function 登录帐号() {
+            $.post("https://localhost:3000/auth/login",
+                {
+                    phone: $("#phone").val(),
+                },
+                function (data, status) {
+                    token = data.phone;
+                    console.log(`使用 ${data.phone} 登录成功`);
+                });
+        }
         function 登入() {
-            socket.emit('login');
+            socket.emit('login', { token });
         }
         function 获取玩家列表() {
             socket.emit('getMany');
@@ -129,6 +150,15 @@
 </head>
 
 <body>
+    <div>
+        注册页面:
+        <input id="phone">
+        <button onclick="注册帐号()">注册帐号</button>
+    </div>
+    <div>
+        登录页面:
+        <button onclick="登录帐号()">登录帐号</button>
+    </div>
     <div>
         <button onclick="登入()">登入</button>
     </div>

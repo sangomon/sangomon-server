@@ -12,6 +12,7 @@ import { Server, Client, Socket } from 'socket.io';
 import { $, _ } from '../common';
 import { LoginGateway } from './login.gateway';
 import { FightGateway } from './fight.gateway';
+import { Data } from '../common/data.common';
 
 @WebSocketGateway()
 export class PlayerGateway {
@@ -25,13 +26,13 @@ export class PlayerGateway {
     }
 
     @SubscribeMessage('getMany')
-    async onGetMany(client: Socket, data: { params?: { includeMe?: 0 | 1 } }) {
+    async onGetMany(client: Socket, data: { params?: { includeMe?: 0 | 1 } } = {}) {
         const event = 'getMany';
-        const { params } = data;
+        const params = data.params;
 
-        let players = LoginGateway.PLAYERS;
+        let players = Data.PLAYERS;
         if (params && params.includeMe === 0) {
-            players = _.without(players, client.id);
+            players = _.reject(Data.PLAYERS, { clientId: client.id });
         }
         return { event, data: players };
     }
@@ -43,7 +44,7 @@ export class PlayerGateway {
         const roomId = $.getId();
 
         // 初始化房间配置
-        _.assign(FightGateway.ROOM_CONFIGS, {
+        _.assign(Data.ROOM_CONFIGS, {
             [roomId]: {
                 turn: [],
                 playerIds: [],

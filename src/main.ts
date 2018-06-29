@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ApplicationModule } from './app.module';
-import { MemoryCacheCommon } from './common';
+import { ApplicationModule } from './module/app.module';
 import * as util from 'util';
 import * as fs from 'fs';
 
@@ -19,12 +18,14 @@ console.debug = function dump(...objs: any[]): void {
 
 async function bootstrap() {
     const httpsOptions = {
-        key: fs.readFileSync('/root/.ssh/me.key'),
-        cert: fs.readFileSync('/root/.ssh/me.csr'),
+        key: fs.readFileSync('/root/.ssh/sangomon.key'),
+        cert: fs.readFileSync('/root/.ssh/sangomon.csr'),
     };
 
     const app = await NestFactory.create(ApplicationModule, {
         httpsOptions,
+        cors: true,
+        bodyParser: true,
     });
 
     await app.listen(3000);

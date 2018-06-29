@@ -11,16 +11,15 @@ import { IType } from '../interface';
 import { $, _, MemoryCacheCommon } from '../common';
 import { Server, Client, Socket } from 'socket.io';
 import { FightService } from '../service/fight.service';
+import { Data } from '../common/data.common';
 
 @WebSocketGateway()
 export class LoginGateway {
 
     @WebSocketServer() server: Server;
 
-    public static PLAYERS: IType.ID[] = [];
-
     constructor(
-        // private readonly fightService: FightService,
+
     ) {
 
     }
@@ -28,12 +27,19 @@ export class LoginGateway {
     @SubscribeMessage('login')
     async onLogin(client: Socket, data) {
         const event = 'login';
+        const token = data.token;
+        // TODO: 解析 Token
+        const { phone } = { phone: token };
 
-        LoginGateway.PLAYERS.push(client.id);
+        Data.PLAYERS.push({
+            clientId: client.id,
+            phone,
+        });
         return from([`玩家ID ${client.id} 已经登录成功`]).pipe(map(res => ({
             event, data: {
                 message: res,
                 playerId: client.id,
+                phone,
             },
         })));
     }
@@ -42,7 +48,7 @@ export class LoginGateway {
     async disconnect(client: Socket, data) {
         const event = 'disconnect';
 
-        LoginGateway.PLAYERS = _.without(LoginGateway.PLAYERS, client.id);
+        Data.PLAYERS = _.reject(Data.PLAYERS, { clientId: client.id });
         console.log(`${client.id} 断开了链接`);
 
         return empty();
