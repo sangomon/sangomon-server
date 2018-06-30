@@ -18,8 +18,8 @@ console.debug = function dump(...objs: any[]): void {
 
 async function bootstrap() {
     const httpsOptions = {
-        key: fs.readFileSync('/root/.ssh/sangomon.key'),
-        cert: fs.readFileSync('/root/.ssh/sangomon.csr'),
+        key: fs.readFileSync('cert/sangomon.key'),
+        cert: fs.readFileSync('cert/sangomon.csr'),
     };
 
     const app = await NestFactory.create(ApplicationModule, {
