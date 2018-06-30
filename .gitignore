@@ -20,5 +20,5 @@ npm-debug.log
 /dist
 .history
 /build
-/cert/*.csr
+/cert/*.pem
 /cert/*.key
