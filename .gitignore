@@ -13,7 +13,6 @@ npm-debug.log
 /quick-start
 
 # tests
-/test
 /coverage
 /.nyc_output
 
@@ -21,3 +20,5 @@ npm-debug.log
 /dist
 .history
 /build
+/cert/*.csr
+/cert/*.key

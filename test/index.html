@@ -5,7 +5,7 @@
     <script src="https://cdn.bootcss.com/socket.io/2.1.1/socket.io.js"></script>
     <script src="https://cdn.bootcss.com/lodash.js/4.17.10/lodash.min.js"></script>
     <script>
-        const socket = io('wss://localhost:3000');
+        const socket = io('wss://www.sangomon.club:3000');
         let globalPlayerId;
         let token;
         // socket.on('disconnect', function () {
@@ -93,7 +93,7 @@
         });
 
         function 注册帐号() {
-            $.post("https://localhost:3000/auth/register",
+            $.post("https://www.sangomon.club:3000/auth/register",
                 {
                     phone: $("#phone").val(),
                 },
@@ -102,7 +102,7 @@
                 });
         }
         function 登录帐号() {
-            $.post("https://localhost:3000/auth/login",
+            $.post("https://www.sangomon.club:3000/auth/login",
                 {
                     phone: $("#phone").val(),
                 },
