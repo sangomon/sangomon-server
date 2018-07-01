@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ApplicationModule } from './module/app.module';
 import * as util from 'util';
 import * as fs from 'fs';
+import { AnyExceptionFilter } from './filter/any_exception.filter';
 
 // 原生方法注入
 const console_log = console.log;
@@ -27,6 +28,8 @@ async function bootstrap() {
         cors: true,
         bodyParser: true,
     });
+
+    app.useGlobalFilters(new AnyExceptionFilter());
 
     await app.listen(3000);
 }

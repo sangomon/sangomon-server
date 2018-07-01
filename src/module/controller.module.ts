@@ -1,7 +1,12 @@
-import { Module } from '@nestjs/common';
-import { AuthController } from '../controller/auth.controller';
+import { Module, Type } from '@nestjs/common';
+import * as Controllers from '../controller';
+
+const controllers: Type<any>[] = [];
+for (const key in Controllers) {
+    if (Controllers[key]) controllers.push(Controllers[key]);
+}
 
 @Module({
-  controllers: [AuthController],
+    controllers,
 })
 export class ControllerModule { }

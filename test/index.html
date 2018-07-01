@@ -5,95 +5,13 @@
     <script src="https://cdn.bootcss.com/socket.io/2.1.1/socket.io.js"></script>
     <script src="https://cdn.bootcss.com/lodash.js/4.17.10/lodash.min.js"></script>
     <script>
-        const socket = io('wss://www.sangomon.club:3000');
+        const url = 'localhost';
         let globalPlayerId;
-        let token;
-        // socket.on('disconnect', function () {
-        //     console.log('Disconnected');
-        // });
-        // socket.on('connect', function () {
-        //     console.log('Connected');
-        // });
-        socket.on('exception', function (data) {
-            console.log('exception', data);
-        });
-        // socket.on('createRoom', function (data) {
-        //     console.log('createRoom', data);
-        // });
-        // socket.on('joinRoom', function (data) {
-        //     console.log('joinRoom', data);
-        // });
-        // socket.on('submitCard', function (data) {
-        //     console.log('submitCard', data);
-        // });
-        // socket.on('getMyCards', function (data) {
-        //     document.getElementById('myCards').innerText = JSON.stringify(data);
-        // });
-
-        socket.on('leaveRoom', function (data) {
-            console.log('leaveRoom', data);
-        });
-        socket.on('confirmFight', function (data) {
-            console.log('confirmFight', data);
-        });
-        socket.on('fight', function (data) {
-            console.log('fight', data);
-        });
-        socket.on('login', function (data) {
-            console.log('login', data);
-            globalPlayerId = data.playerId
-        });
-        socket.on('getMany', function (data) {
-            console.log('getMany', data);
-            document.getElementById('players').innerHTML = '';
-            for (const item of data) {
-                document.getElementById('players').innerHTML = document.getElementById('players').innerText + "</br>" + JSON.stringify(item);
-            }
-        });
-        socket.on('sendFight', function (data) {
-            console.log('sendFight', data);
-            const roomId = data;
-            socket.emit('joinRoom', {
-                roomId,
-            });
-        });
-        socket.on('fetchFight', function (data) {
-            console.log('fetchFight', data);
-            const roomId = data.roomId;
-            const invitePlayerId = data.invitePlayerId;
-            const message = data.message;
-
-            if (confirm(message)) {
-                socket.emit('joinRoom', {
-                    roomId,
-                });
-            } else {
-                socket.emit('rejectFight', {
-                    roomId,
-                });
-            }
-        });
-        socket.on('joinRoom', function (data) {
-            console.log('joinRoom', data);
-        });
-        socket.on('fightStatus', function (data) {
-            console.log('fightStatus', data);
-            const isWin = data.winPlayer === globalPlayerId;
-            socket.emit('leaveRoom');
-            isWin ? alert('我赢了') : alert('我输了');
-            alert('再来一局吧')
-        });
-        socket.on('useSkill', function (data) {
-            console.log('useSkill', data);
-            const me = _.filter(data.players, { id: globalPlayerId })[0];
-            const player = _.reject(data.players, { id: globalPlayerId })[0];
-            document.getElementById('turnWho').innerText = data.turn[0];
-            document.getElementById('meHp').innerText = me.hp;
-            document.getElementById('playerHp').innerText = player.hp;
-        });
+        let token = '';
+        let socket;
 
         function 注册帐号() {
-            $.post("https://www.sangomon.club:3000/auth/register",
+            $.post(`https://${url}:3000/auth/register`,
                 {
                     phone: $("#phone").val(),
                 },
@@ -102,20 +20,114 @@
                 });
         }
         function 登录帐号() {
-            $.post("https://www.sangomon.club:3000/auth/login",
+            $.post(`https://${url}:3000/auth/login`,
                 {
                     phone: $("#phone").val(),
                 },
                 function (data, status) {
-                    token = data.phone;
-                    console.log(`使用 ${data.phone} 登录成功`);
+                    token = data;
+                    socket = io(`wss://${url}:3000`, {
+                        query: 'token=' + token
+                    });
+                    console.log(`登录成功, ${token}`);
+
+                    socket.on('exception', function (data) {
+                        console.log('exception', data);
+                    });
+                    socket.on('warn', function (data) {
+                        console.log('warn', data);
+                    });
+                    socket.on('getOneMon', function (data) {
+                        console.log('getOneMon', data);
+                    });
+                    socket.on('leaveRoom', function (data) {
+                        console.log('leaveRoom', data);
+                    });
+                    socket.on('confirmFight', function (data) {
+                        console.log('confirmFight', data);
+                    });
+                    socket.on('fight', function (data) {
+                        console.log('fight', data);
+                    });
+                    socket.on('login', function (data) {
+                        console.log('login', data);
+                        globalPlayerId = data.playerId
+                    });
+                    socket.on('getMany', function (data) {
+                        console.log('getMany', data);
+                        document.getElementById('players').innerHTML = '';
+                        for (const item of data) {
+                            document.getElementById('players').innerHTML = document.getElementById('players').innerText + "</br>" + JSON.stringify(item);
+                        }
+                    });
+                    socket.on('sendFight', function (data) {
+                        console.log('sendFight', data);
+                        const roomId = data;
+                        socket.emit('joinRoom', {
+                            roomId,
+                        });
+                    });
+                    socket.on('fetchFight', function (data) {
+                        console.log('fetchFight', data);
+                        const roomId = data.roomId;
+                        const invitePlayerId = data.invitePlayerId;
+                        const message = data.message;
+
+                        if (confirm(message)) {
+                            socket.emit('joinRoom', {
+                                roomId,
+                            });
+                        } else {
+                            socket.emit('rejectFight', {
+                                roomId,
+                            });
+                        }
+                    });
+                    socket.on('joinRoom', function (data) {
+                        console.log('joinRoom', data);
+                    });
+                    socket.on('fightStatus', function (data) {
+                        console.log('fightStatus', data);
+                        const isWin = data.winPlayer === globalPlayerId;
+                        socket.emit('leaveRoom');
+                        isWin ? alert('我赢了') : alert('我输了');
+                        alert('再来一局吧')
+                    });
+                    socket.on('useSkill', function (data) {
+                        console.log('useSkill', data);
+                        const me = _.filter(data.playerMons, { playerId: globalPlayerId })[0];
+                        const player = _.reject(data.playerMons, { playerId: globalPlayerId })[0];
+                        document.getElementById('turnWho').innerText = data.turn[0] === globalPlayerId ? '我' : '敌人';
+                        document.getElementById('meHp').innerText = me.hp;
+                        document.getElementById('playerHp').innerText = player.hp;
+                    });
                 });
         }
+        function 我的名将() {
+            $.ajax({
+                dataType: "json",
+                url: `https://${url}:3000/players/${globalPlayerId}/mons`,
+                type: "get",
+                headers: {
+                    Authorization: token,
+                },
+                success: function (data) {
+                    console.log('我的名将', data);
+                    document.getElementById('myMons').innerHTML = '';
+                    for (const item of data) {
+                        document.getElementById('myMons').innerHTML = document.getElementById('myMons').innerText + "</br>" + JSON.stringify(item);
+                    }
+                }
+            });
+        }
+        function 随机募集名将() {
+            socket.emit('getOneMon');
+        }
         function 登入() {
-            socket.emit('login', { token });
+            socket.emit('login');
         }
         function 获取玩家列表() {
-            socket.emit('getMany');
+            socket.emit('getMany', { params: { includeMe: 0 } });
         }
         function 与他战斗() {
             const playerId = document.getElementById('playerId').value;
@@ -161,6 +173,15 @@
     </div>
     <div>
         <button onclick="登入()">登入</button>
+    </div>
+    <div>
+        随机募集名将:
+        <button onclick="随机募集名将()">随机募集名将</button>
+    </div>
+    <div>
+        我的名将:
+        <p id='myMons'></p>
+        <button onclick="我的名将()">我的名将</button>
     </div>
     <div>
         <button onclick="获取玩家列表()">获取玩家列表</button>

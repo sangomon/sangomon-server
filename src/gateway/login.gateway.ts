@@ -12,6 +12,9 @@ import { $, _, MemoryCacheCommon } from '../common';
 import { Server, Client, Socket } from 'socket.io';
 import { FightService } from '../service/fight.service';
 import { Data } from '../common/data.common';
+import { IData } from '../interface/data.interface';
+import { UseGuards } from '@nestjs/common';
+import { WsAuthGuard } from '../guard/auth.guard';
 
 @WebSocketGateway()
 export class LoginGateway {
@@ -24,22 +27,23 @@ export class LoginGateway {
 
     }
 
+    @UseGuards(WsAuthGuard('jwt'))
     @SubscribeMessage('login')
-    async onLogin(client: Socket, data) {
+    async onLogin(
+        client: Socket,
+        data = {},
+    ) {
+        const me = client.request.user;
         const event = 'login';
-        const token = data.token;
-        // TODO: 解析 Token
-        const { phone } = { phone: token };
-
-        Data.PLAYERS.push({
+        Data.ONLINE_PLAYERS.push({
             clientId: client.id,
-            phone,
+            playerId: me.id,
         });
-        return from([`玩家ID ${client.id} 已经登录成功`]).pipe(map(res => ({
+        return from([`玩家ID ${me.id} 已经登录成功`]).pipe(map(res => ({
             event, data: {
                 message: res,
-                playerId: client.id,
-                phone,
+                clientId: client.id,
+                playerId: me.id,
             },
         })));
     }
@@ -48,7 +52,7 @@ export class LoginGateway {
     async disconnect(client: Socket, data) {
         const event = 'disconnect';
 
-        Data.PLAYERS = _.reject(Data.PLAYERS, { clientId: client.id });
+        Data.ONLINE_PLAYERS = _.reject(Data.ONLINE_PLAYERS, { clientId: client.id });
         console.log(`${client.id} 断开了链接`);
 
         return empty();

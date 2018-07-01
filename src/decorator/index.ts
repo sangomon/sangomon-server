@@ -1,0 +1,1 @@
+export { PlayerDeco } from './player.decorator';

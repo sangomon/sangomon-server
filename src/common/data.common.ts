@@ -1,36 +1,33 @@
-import { IType } from '../interface';
-
-interface CORE {
-    ACCOUNTS: {
-        id: IType.ID,
-        phone: string,
-    }[];
-    PLAYERS: { clientId: IType.ID, phone: string }[];
-    ROOM_CONFIGS: {
-        [roomId: string]: {
-            turn: IType.ID[],
-            playerIds: IType.ID[],
-            maxWaitTime: number,
-            players: {
-                id: IType.ID,
-                hp: number,
-            }[],
-        },
-    };
-}
+import { MonConst } from '../const';
+import { _, $ } from './support.common';
+import { IData } from '../interface/data.interface';
 
 export class Data {
 
-    private static CORE: CORE = {
-        PLAYERS: [],
-        ROOM_CONFIGS: {},
-        ACCOUNTS: [],
-    };
+    private static CORE: {
+        ONLINE_PLAYERS: IData.OnlinePlayer[],
+        ROOM_CONFIG: IData.RoomConfig,
+        PLAYERS: IData.Player[],
+        PLAYER_MONS: IData.PlayerMon[],
+        MONS: IData.Mon[],
+    } = {
+            ONLINE_PLAYERS: [],
+            ROOM_CONFIG: {},
+            PLAYERS: [],
+            PLAYER_MONS: [],
+            MONS: _.map(MonConst, (mon) => {
+                return Object.assign(mon, { id: $.getId() });
+            }),
+        };
 
-    public static ACCOUNTS = Data.CORE.ACCOUNTS;
+    public static MONS = Data.CORE.MONS;
+
+    public static PLAYER_MONS = Data.CORE.PLAYER_MONS;
 
     public static PLAYERS = Data.CORE.PLAYERS;
 
-    public static ROOM_CONFIGS = Data.CORE.ROOM_CONFIGS;
+    public static ONLINE_PLAYERS = Data.CORE.ONLINE_PLAYERS;
+
+    public static ROOM_CONFIG = Data.CORE.ROOM_CONFIG;
 
 }

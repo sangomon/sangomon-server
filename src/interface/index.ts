@@ -1,1 +1,1 @@
-export * from './itype.interface';
+export * from './type.interface';

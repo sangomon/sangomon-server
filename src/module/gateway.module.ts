@@ -1,11 +1,16 @@
-import { Module } from '@nestjs/common';
+import { Module, Provider } from '@nestjs/common';
 import { ServiceModule } from './service.module';
-import { FightGateway } from '../gateway/fight.gateway';
-import { PlayerGateway } from '../gateway/player.gateway';
-import { LoginGateway } from '../gateway/login.gateway';
+import * as Gateways from '../gateway';
+import { JwtStrategy } from '../common/passport/jwt.strategy';
+
+const gateways: Provider[] = [];
+for (const key in Gateways) {
+    if (Gateways[key]) gateways.push(Gateways[key]);
+}
+gateways.push(JwtStrategy);
 
 @Module({
-  imports: [ServiceModule],
-  providers: [PlayerGateway, LoginGateway, FightGateway],
+    imports: [ServiceModule],
+    providers: gateways,
 })
 export class GatewayModule { }

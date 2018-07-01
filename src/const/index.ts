@@ -1,0 +1,1 @@
+export { MonConst } from './mon.const';
